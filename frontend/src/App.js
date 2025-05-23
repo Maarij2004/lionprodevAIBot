@@ -145,46 +145,47 @@ function App() {
         ]);
         setPromptArea('');
         setIsLoading(true);
+        
+       const url = process.env.NODE_ENV === 'production' ? '/api/prompt' : 'http://localhost:3050/api/prompt';
+let tmpPromptResponse = '';
+try {
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt: userMessage }),
+    });
 
-        const url = 'http://localhost:3050/api/prompt';
-        let tmpPromptResponse = '';
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ prompt: userMessage }),
-            });
+    if (!response.body) throw new Error('No response body');
 
-            if (!response.body) throw new Error('No response body');
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
 
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
+    while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
 
-            while (true) {
-                const { value, done } = await reader.read();
-                if (done) break;
+        tmpPromptResponse += decoder.decode(value, { stream: true });
+    }
 
-                tmpPromptResponse += decoder.decode(value, { stream: true });
-            }
+    tmpPromptResponse = tmpPromptResponse.replace(/\*/g, '');
+    tmpPromptResponse = tmpPromptResponse.replace(/\n/g, '<br />');
 
-            tmpPromptResponse = tmpPromptResponse.replace(/\*/g, '');
-            tmpPromptResponse = tmpPromptResponse.replace(/\n/g, '<br />');
+    setChatHistory((prev) => [
+        ...prev,
+        { sender: 'bot', message: tmpPromptResponse },
+    ]);
+} catch (error) {
+    console.error('Error:', error);
+    setChatHistory((prev) => [
+        ...prev,
+        { sender: 'bot', message: 'Error communicating with the server.' },
+    ]);
+} finally {
+    setIsLoading(false);
+}
 
-            setChatHistory((prev) => [
-                ...prev,
-                { sender: 'bot', message: tmpPromptResponse },
-            ]);
-        } catch (error) {
-            console.error('Error:', error);
-            setChatHistory((prev) => [
-                ...prev,
-                { sender: 'bot', message: 'Error communicating with the server.' },
-            ]);
-        } finally {
-            setIsLoading(false);
-        }
     };
 
     const handleKeyPress = (e) => {

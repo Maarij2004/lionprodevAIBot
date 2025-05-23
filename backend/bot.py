@@ -1,7 +1,8 @@
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, jsonify, Response, send_from_directory
 from flask_cors import CORS
 import time
 import openai
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -12,9 +13,6 @@ client = openai.OpenAI(
 )
 
 LION_PRO_DEV_INFO = """
-
-Founding the Pride:
-
 EST in 2012, Lion Pro Dev is the brainchild of Lion MGT LLC, established with the vision of transforming the digital experience for businesses. From our humble beginnings, we set out on a journey to redefine standards. Located at 5195 Hampsted VCW #232, New Albany, OH 43054, not just a company, it's a partner invested in seeing your brand not only survive but thrive in the digital wilderness.
 
 From the onset, Lion Pro Dev aimed not just to provide services but to become strategic partners in the success stories of our clients. It operates as a Doing Business As (DBA) entity under Lion MGT LLC. This structure ensures a solid foundation, financial stability, and a commitment to upholding the highest standards of business practices.
@@ -116,5 +114,20 @@ def handle_prompt():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/')
+def serve_react():
+    try:
+        return send_from_directory('../frontend/build', 'index.html')
+    except:
+        return jsonify({"message": "Lion Pro Dev API is running!", "status": "success"})
+
+@app.route('/<path:path>')
+def serve_static_files(path):
+    try:
+        return send_from_directory('../frontend/build', path)
+    except:
+        return send_from_directory('../frontend/build', 'index.html')
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=3050, debug=True)
+    port = int(os.environ.get('PORT', 3050))
+    app.run(host='0.0.0.0', port=port, debug=False)
