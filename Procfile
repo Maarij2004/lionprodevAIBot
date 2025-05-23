@@ -1,1 +1,1 @@
-web: gunicorn bot:app
+web: cd frontend && npm run build && cd ../backend && python bot.py
