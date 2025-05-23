@@ -6,14 +6,18 @@ import openai
 app = Flask(__name__)
 CORS(app)
 
-# Set up OpenAI client with Groq's base URL
 client = openai.OpenAI(
     api_key="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",
-    base_url="https://api.groq.com/openai/v1"  # Groq OpenAI-compatible base URL
+    base_url="https://api.groq.com/openai/v1"
 )
 
-# Information related to Lion Pro Dev
 LION_PRO_DEV_INFO = """
+
+Founding the Pride:
+
+EST in 2012, Lion Pro Dev is the brainchild of Lion MGT LLC, established with the vision of transforming the digital experience for businesses. From our humble beginnings, we set out on a journey to redefine standards. Located at 5195 Hampsted VCW #232, New Albany, OH 43054, not just a company, it's a partner invested in seeing your brand not only survive but thrive in the digital wilderness.
+
+From the onset, Lion Pro Dev aimed not just to provide services but to become strategic partners in the success stories of our clients. It operates as a Doing Business As (DBA) entity under Lion MGT LLC. This structure ensures a solid foundation, financial stability, and a commitment to upholding the highest standards of business practices.
 Lion Pro Dev is a leading software development company specializing in:
 1. Custom Software Development
 2. Web Design & Development
@@ -23,7 +27,7 @@ Lion Pro Dev is a leading software development company specializing in:
 
 We provide high-quality, tailor-made solutions to help businesses grow, utilizing cutting-edge technologies.
 Contact us at:
-- Email: contact@lionprodev.com
+- Email: office@lionprodev.com
 
 Our team of experts is here to help you build your dream project!
 
@@ -40,7 +44,7 @@ Core Services:
 4. Generative AI: Innovative AI tools and technologies that assist in content creation, design, and automation.
    - Service offerings: Generative design, content generation, automation workflows.
 
-5. Graphic Design: Creative and unique graphic designs for branding, marketing materials, and digital assets.
+5. Graphic Design & UI/UX: Creative and unique graphic designs for branding, marketing materials, and digital assets.
    - Service offerings: Logo design, brochures, social media visuals, digital marketing campaigns.
 
 6. Marketing Services: Full-stack digital marketing strategies to help you reach and engage your target audience effectively.
@@ -49,6 +53,9 @@ Core Services:
 7. Shopify Development: Expert Shopify store setup, customization, and optimization for better eCommerce success.
    - Service offerings: Custom Shopify themes, Shopify SEO, Shopify integrations.
 
+8. UI/UX Design: Crafting seamless, user-centered designs that ensure delightful experiences for web and mobile apps.
+   - Service offerings: User Interface (UI) design, User Experience (UX) design, wireframing, prototyping, and user testing.
+
 Industries We Serve:
 - eCommerce
 - Healthcare
@@ -56,7 +63,7 @@ Industries We Serve:
 - Education
 - Retail
 - Real Estate
-- Hospitality
+- Hospitality and much more
 
 Why Choose Us:
 - Experience: With years of experience, we bring expert knowledge to every project.
@@ -66,8 +73,15 @@ Why Choose Us:
 
 To schedule the meeting or book slots contact us via our email or website.
 Contact Information:
-- Email: contact@lionprodev.com
+
+- Email: office@lionprodev.com
 - Website: https://lionprodev.com/
+
+
+
+Philip Cutting, a passionate Web, Mobile Apps Developer, AI Engineer, and the visionary (CTO & Co-founder) of Lion Pro Dev, has been steering the New Albany, Ohio-based software company towards innovation and excellence since 2012. Specializing in developing web and mobile applications, his career is dedicated to transforming visionary ideas into tangible, digital solutions that drive success.
+
+With a comprehensive suite of services, the focus is on crafting bespoke solutions that not only meet but exceed clients' digital aspirations. The approach is always tailored and results-driven, aiming to craft engaging mobile apps and effective web solutions that enhance conversion and engagement.
 """
 
 @app.route('/api/prompt', methods=['POST'])
@@ -79,7 +93,6 @@ def handle_prompt():
         return jsonify({"error": "Prompt is required."}), 400
 
     try:
-        # The model will respond in English
         chat_completion = client.chat.completions.create(
             model="llama3-8b-8192",
             messages=[
@@ -96,7 +109,7 @@ def handle_prompt():
             for chunk in chat_completion:
                 if chunk.choices[0].delta.content:
                     yield chunk.choices[0].delta.content
-                    time.sleep(0.01)  # optional to slow down the stream
+                    time.sleep(0.01) 
 
         return Response(stream_response(), content_type="text/plain")
 
